@@ -19,22 +19,15 @@ class Raquete {
         if (this.x < width / 2) {
             this.y = mouseY;
         } else {
-            if (bola.y < this.y) {
-                this.y -= 5;
-            } else {
-                this.y += 5;
-            }
+            this.y += (bola.y - this.y) * 0.1;
         }
 
         this.y = constrain(this.y, 0, height - this.h);
     }
 
     draw() {
-        if (this.x < width / 2) {
-            image(jogadorImagem, this.x, this.y, this.w, this.h);
-        } else {
-            image(computadorImagem, this.x, this.y, this.w, this.h);
-        }
+        const imagem = this.x < width / 2 ? jogadorImagem : computadorImagem;
+        image(imagem, this.x, this.y, this.w, this.h);
     }
 }
 
@@ -115,14 +108,12 @@ class Bola {
 }
 
 function colideRetanguloCirculo(cx, cy, raio, x, y, w, h) {
-    if (cx + raio < x || cx - raio > x + w) {
-        return false;
-    }
-
-    if (cy + raio < y || cy - raio > y + h) {
-        return false;
-    }
-    return true;
+    return (
+        cx + raio >= x &&
+        cx - raio <= x + w &&
+        cy + raio >= y &&
+        cy - raio <= y + h
+    );
 }
 
 let bola;
@@ -130,7 +121,7 @@ let jogador;
 let computador;
 
 function falaPontos() {
-    let fala = new SpeechSynthesisUtterance();
+    const fala = new SpeechSynthesisUtterance();
     fala.lang = 'pt-BR';
     fala.text = `Jogador ${pontosJogador} a ${pontosComputador} Computador`;
     speechSynthesis.speak(fala);
@@ -154,16 +145,11 @@ function setup() {
 }
 
 function draw() {
-    let aspectRatio = fundoImagem.width / fundoImagem.height;
-    let canvasAspectRatio = width / height;
-    let scale = 1;
-    if (aspectRatio > canvasAspectRatio) {
-        scale = height / fundoImagem.height;
-    } else {
-        scale = width / fundoImagem.width;
-    }
-    let x = (width - fundoImagem.width * scale) / 2;
-    let y = (height - fundoImagem.height * scale) / 2;
+    const aspectRatio = fundoImagem.width / fundoImagem.height;
+    const canvasAspectRatio = width / height;
+    const scale = aspectRatio > canvasAspectRatio ? height / fundoImagem.height : width / fundoImagem.width;
+    const x = (width - fundoImagem.width * scale) / 2;
+    const y = (height - fundoImagem.height * scale) / 2;
     image(fundoImagem, x, y, fundoImagem.width * scale, fundoImagem.height * scale);
 
     bola.update();
